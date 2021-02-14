@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-
+import { AuthGuardService } from '@app/core';
 import { TeaPage } from './tea.page';
 
 const routes: Routes = [
   {
     path: '',
     component: TeaPage,
+    canActivate: [AuthGuardService],
   },
 ];
 
