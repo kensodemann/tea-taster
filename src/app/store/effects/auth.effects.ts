@@ -4,7 +4,14 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { from, of } from 'rxjs';
 import { catchError, exhaustMap, map, tap } from 'rxjs/operators';
 
-import { login, loginFailure, loginSuccess } from '@app/store/actions';
+import {
+  login,
+  loginFailure,
+  loginSuccess,
+  logout,
+  logoutFailure,
+  logoutSuccess,
+} from '@app/store/actions';
 import { Session } from '@app/models';
 import { SessionVaultService } from '@app/core';
 
@@ -25,11 +32,35 @@ export class AuthEffects {
     ),
   );
 
+  logout$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(logout),
+      exhaustMap(() =>
+        from(Promise.resolve()).pipe(
+          tap(() => this.sessionVault.logout()),
+          map(() => logoutSuccess()),
+          catchError(error =>
+            of(logoutFailure({ errorMessage: error.message })),
+          ),
+        ),
+      ),
+    ),
+  );
+
   loginSuccess$ = createEffect(
     () =>
       this.actions$.pipe(
         ofType(loginSuccess),
         tap(() => this.navController.navigateRoot(['/'])),
+      ),
+    { dispatch: false },
+  );
+
+  logoutSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(logoutSuccess),
+        tap(() => this.navController.navigateRoot(['/', 'login'])),
       ),
     { dispatch: false },
   );
