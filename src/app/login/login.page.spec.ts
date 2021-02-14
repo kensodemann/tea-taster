@@ -7,9 +7,14 @@ import {
 } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { Store } from '@ngrx/store';
 import { IonicModule } from '@ionic/angular';
 
 import { LoginPage } from './login.page';
+import { AuthState, initialState } from '@app/store/reducers/auth.reducer';
+import { login } from '@app/store/actions';
+import { selectAuthErrorMessage } from '@app/store';
 
 describe('LoginPage', () => {
   let component: LoginPage;
@@ -20,6 +25,11 @@ describe('LoginPage', () => {
       TestBed.configureTestingModule({
         declarations: [LoginPage],
         imports: [FormsModule, IonicModule],
+        providers: [
+          provideMockStore<{ auth: AuthState }>({
+            initialState: { auth: initialState },
+          }),
+        ],
       }).compileComponents();
 
       fixture = TestBed.createComponent(LoginPage);
@@ -112,6 +122,18 @@ describe('LoginPage', () => {
       setInputValue(password, 'MyPassW0rd');
       expect(button.disabled).toEqual(true);
     });
+
+    it('dispatches login on click', () => {
+      const store = TestBed.inject(Store);
+      const dispatchSpy = spyOn(store, 'dispatch');
+      setInputValue(email, 'test@test.com');
+      setInputValue(password, 'MyPassW0rd');
+      click(button);
+      expect(dispatchSpy).toHaveBeenCalledTimes(1);
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        login({ email: 'test@test.com', password: 'MyPassW0rd' }),
+      );
+    });
   });
 
   describe('error messages', () => {
@@ -153,7 +175,32 @@ describe('LoginPage', () => {
       setInputValue(password, '');
       expect(errorDiv.textContent.trim()).toEqual('Password is required');
     });
+
+    it('displays the auth state error message if there is one', () => {
+      const store = TestBed.inject(Store) as MockStore;
+      const mockErrorMessageSelector = store.overrideSelector(
+        selectAuthErrorMessage,
+        '',
+      );
+      store.refreshState();
+      fixture.detectChanges();
+      expect(errorDiv.textContent.trim()).toEqual('');
+      mockErrorMessageSelector.setResult('Invalid Email or Password');
+      store.refreshState();
+      fixture.detectChanges();
+      expect(errorDiv.textContent.trim()).toEqual('Invalid Email or Password');
+      mockErrorMessageSelector.setResult('');
+      store.refreshState();
+      fixture.detectChanges();
+      expect(errorDiv.textContent.trim()).toEqual('');
+    });
   });
+
+  const click = (button: HTMLElement) => {
+    const event = new Event('click');
+    button.dispatchEvent(event);
+    fixture.detectChanges();
+  };
 
   const setInputValue = (input: HTMLIonInputElement, value: string) => {
     const event = new InputEvent('ionChange');

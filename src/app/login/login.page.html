@@ -47,6 +47,8 @@
       >
         <div *ngIf="passwordInput.errors.required">Password is required</div>
       </div>
+
+      <div>{{ errorMessage$ | async }}</div>
     </div>
   </form>
 </ion-content>
