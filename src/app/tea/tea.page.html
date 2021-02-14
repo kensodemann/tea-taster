@@ -17,7 +17,10 @@
   </ion-header>
 
   <ion-grid>
-    <ion-row *ngFor="let teaRow of teaMatrix" class="ion-align-items-stretch">
+    <ion-row
+      *ngFor="let teaRow of (teas$ | async)"
+      class="ion-align-items-stretch"
+    >
       <ion-col *ngFor="let tea of teaRow" size="12" size-md="6" size-xl="3">
         <ion-card>
           <ion-img [src]="tea.image"></ion-img>

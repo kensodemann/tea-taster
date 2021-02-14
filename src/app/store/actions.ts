@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Session } from '@app/models';
+import { Session, Tea } from '@app/models';
 
 export const login = createAction(
   '[Login Page] login',
@@ -17,6 +17,15 @@ export const loginFailure = createAction(
 export const sessionRestored = createAction(
   '[Vault API] session restored',
   props<{ session: Session }>(),
+);
+
+export const initialLoadSuccess = createAction(
+  '[Data API] initial data load success',
+  props<{ teas: Array<Tea> }>(),
+);
+export const initialLoadFailure = createAction(
+  '[Data API] initial data load failure',
+  props<{ errorMessage: string }>(),
 );
 
 export const unauthError = createAction('[Auth API] unauthenticated error');
