@@ -14,6 +14,11 @@ export const loginFailure = createAction(
   props<{ errorMessage: string }>(),
 );
 
+export const sessionRestored = createAction(
+  '[Vault API] session restored',
+  props<{ session: Session }>(),
+);
+
 export const logout = createAction('[Tea Page] logout');
 export const logoutSuccess = createAction('[Auth API] logout success');
 export const logoutFailure = createAction(

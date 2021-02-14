@@ -6,6 +6,7 @@ import { catchError, exhaustMap, map, tap } from 'rxjs/operators';
 
 import { login, loginFailure, loginSuccess } from '@app/store/actions';
 import { Session } from '@app/models';
+import { SessionVaultService } from '@app/core';
 
 @Injectable()
 export class AuthEffects {
@@ -14,6 +15,7 @@ export class AuthEffects {
       ofType(login),
       exhaustMap(action =>
         from(this.fakeLogin(action.email, action.password)).pipe(
+          tap(session => this.sessionVault.login(session)),
           map(session => loginSuccess({ session })),
           catchError(error =>
             of(loginFailure({ errorMessage: error.message })),
@@ -35,6 +37,7 @@ export class AuthEffects {
   constructor(
     private actions$: Actions,
     private navController: NavController,
+    private sessionVault: SessionVaultService,
   ) {}
 
   private fakeLogin(email: string, password: string): Promise<Session> {

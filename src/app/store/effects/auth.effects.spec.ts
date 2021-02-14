@@ -6,6 +6,9 @@ import { NavController } from '@ionic/angular';
 import { createNavControllerMock } from '@test/mocks';
 import { AuthEffects } from './auth.effects';
 import { login, loginSuccess } from '@app/store/actions';
+import { Session } from '@app/models';
+import { SessionVaultService } from '@app/core';
+import { createSessionVaultServiceMock } from '@app/core/testing';
 
 describe('AuthEffects', () => {
   let actions$: Observable<any>;
@@ -17,6 +20,10 @@ describe('AuthEffects', () => {
         AuthEffects,
         provideMockActions(() => actions$),
         { provide: NavController, useFactory: createNavControllerMock },
+        {
+          provide: SessionVaultService,
+          useFactory: createSessionVaultServiceMock,
+        },
       ],
     });
     effects = TestBed.inject(AuthEffects);
@@ -46,6 +53,24 @@ describe('AuthEffects', () => {
           done();
         });
       });
+
+      it('saves the session', done => {
+        const sessionVaultService = TestBed.inject(SessionVaultService);
+        actions$ = of(login({ email: 'test@test.com', password: 'test' }));
+        effects.login$.subscribe(() => {
+          expect(sessionVaultService.login).toHaveBeenCalledTimes(1);
+          expect(sessionVaultService.login).toHaveBeenCalledWith({
+            user: {
+              id: 73,
+              firstName: 'Ken',
+              lastName: 'Sodemann',
+              email: 'test@test.com',
+            },
+            token: '314159',
+          });
+          done();
+        });
+      });
     });
 
     describe('on login failure', () => {
@@ -56,6 +81,15 @@ describe('AuthEffects', () => {
             type: '[Auth API] login failure',
             errorMessage: 'Invalid Username or Password',
           });
+          done();
+        });
+      });
+
+      it('does not save the session', done => {
+        const sessionVaultService = TestBed.inject(SessionVaultService);
+        actions$ = of(login({ email: 'test@test.com', password: 'badpass' }));
+        effects.login$.subscribe(() => {
+          expect(sessionVaultService.login).not.toHaveBeenCalled();
           done();
         });
       });

@@ -6,6 +6,7 @@ import {
   logout,
   logoutFailure,
   logoutSuccess,
+  sessionRestored,
 } from '@app/store/actions';
 import { Session } from '@app/models';
 
@@ -59,6 +60,26 @@ describe('Login Failure', () => {
     expect(reducer({ loading: true, errorMessage: '' }, action)).toEqual({
       loading: false,
       errorMessage: 'There was a failure, it was a mess',
+    });
+  });
+});
+
+describe('Session Restored', () => {
+  it('sets the session', () => {
+    const session: Session = {
+      user: {
+        id: 42,
+        firstName: 'Douglas',
+        lastName: 'Adams',
+        email: 'solong@thanksforthefish.com',
+      },
+      token: 'Imalittletoken',
+    };
+    const action = sessionRestored({ session });
+    expect(reducer({ loading: false, errorMessage: '' }, action)).toEqual({
+      session,
+      loading: false,
+      errorMessage: '',
     });
   });
 });

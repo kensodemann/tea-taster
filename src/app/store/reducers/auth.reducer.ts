@@ -1,4 +1,4 @@
-import { Action, createReducer, on } from '@ngrx/store';
+import { createReducer, on } from '@ngrx/store';
 import * as Actions from '@app/store/actions';
 import { Session } from '@app/models';
 
@@ -24,6 +24,10 @@ export const reducer = createReducer(
     ...state,
     session,
     loading: false,
+  })),
+  on(Actions.sessionRestored, (state, { session }) => ({
+    ...state,
+    session,
   })),
   on(Actions.loginFailure, (state, { errorMessage }) => ({
     ...state,
