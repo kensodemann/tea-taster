@@ -25,6 +25,11 @@ export const reducer = createReducer(
     session,
     loading: false,
   })),
+  on(Actions.unauthError, state => {
+    const newState = { ...state };
+    delete newState.session;
+    return newState;
+  }),
   on(Actions.sessionRestored, (state, { session }) => ({
     ...state,
     session,

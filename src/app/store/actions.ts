@@ -19,6 +19,8 @@ export const sessionRestored = createAction(
   props<{ session: Session }>(),
 );
 
+export const unauthError = createAction('[Auth API] unauthenticated error');
+
 export const logout = createAction('[Tea Page] logout');
 export const logoutSuccess = createAction('[Auth API] logout success');
 export const logoutFailure = createAction(
