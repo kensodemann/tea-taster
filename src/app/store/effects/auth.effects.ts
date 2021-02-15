@@ -1,9 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NavController } from '@ionic/angular';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { from, of } from 'rxjs';
-import { catchError, exhaustMap, map, tap } from 'rxjs/operators';
-
+import { AuthenticationService, SessionVaultService } from '@app/core';
 import {
   login,
   loginFailure,
@@ -13,8 +9,10 @@ import {
   logoutSuccess,
   unauthError,
 } from '@app/store/actions';
-import { Session } from '@app/models';
-import { AuthenticationService, SessionVaultService } from '@app/core';
+import { NavController } from '@ionic/angular';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { of } from 'rxjs';
+import { catchError, exhaustMap, map, tap } from 'rxjs/operators';
 
 @Injectable()
 export class AuthEffects {

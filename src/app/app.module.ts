@@ -1,17 +1,16 @@
-import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { StoreModule } from '@ngrx/store';
 import { RouteReuseStrategy } from '@angular/router';
-import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-
 import { metaReducers, reducers } from '@app/store';
 import { AuthEffects, DataEffects } from '@app/store/effects';
-import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing.module';
+import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { EffectsModule } from '@ngrx/effects';
+import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
 import { AuthInterceptor, UnauthInterceptor } from './core';
 
 @NgModule({
