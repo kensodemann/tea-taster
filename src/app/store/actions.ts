@@ -28,6 +28,19 @@ export const initialLoadFailure = createAction(
   props<{ errorMessage: string }>(),
 );
 
+export const teaDetailsChangeRating = createAction(
+  '[Tea Details Page] change rating',
+  props<{ tea: Tea; rating: number }>(),
+);
+export const teaDetailsChangeRatingSuccess = createAction(
+  '[Data API] change rating success',
+  props<{ tea: Tea }>(),
+);
+export const teaDetailsChangeRatingFailure = createAction(
+  '[Data API] change rating failure',
+  props<{ errorMessage: string }>(),
+);
+
 export const unauthError = createAction('[Auth API] unauthenticated error');
 
 export const logout = createAction('[Tea Page] logout');
