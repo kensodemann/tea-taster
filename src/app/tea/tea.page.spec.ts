@@ -136,6 +136,8 @@ describe('TeaPage', () => {
       const navController = TestBed.inject(NavController);
       click(card);
       expect(navController.navigateForward).toHaveBeenCalledWith([
+        'tabs',
+        'tea',
         'tea-details',
         teas[2].id,
       ]);
