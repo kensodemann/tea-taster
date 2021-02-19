@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Store } from '@ngrx/store';
-
 import { TastingNote, Tea } from '@app/models';
 import { selectTeas, State } from '@app/store';
-import { ModalController } from '@ionic/angular';
 import { noteSaved } from '@app/store/actions';
+import { Plugins } from '@capacitor/core';
+import { ModalController, Platform } from '@ionic/angular';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-tasting-note-editor',
@@ -23,6 +23,14 @@ export class TastingNoteEditorComponent implements OnInit {
 
   teaCategories$: Observable<Array<Tea>>;
 
+  get sharingIsAvailable(): boolean {
+    return this.platform.is('hybrid');
+  }
+
+  get allowSharing(): boolean {
+    return !!(this.brand && this.name && this.rating);
+  }
+
   get title(): string {
     return this.note ? 'Tasting Note' : 'Add New Tasting Note';
   }
@@ -33,6 +41,7 @@ export class TastingNoteEditorComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
+    private platform: Platform,
     private store: Store<State>,
   ) {}
 
@@ -66,5 +75,16 @@ export class TastingNoteEditorComponent implements OnInit {
 
     this.store.dispatch(noteSaved({ note }));
     this.modalController.dismiss();
+  }
+
+  async share(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { Share } = Plugins;
+    await Share.share({
+      title: `${this.brand}: ${this.name}`,
+      text: `I gave ${this.brand}: ${this.name} ${this.rating} stars on the Tea Taster app`,
+      dialogTitle: 'Share your tasting note',
+      url: 'https://tea-taster-training.web.app',
+    });
   }
 }
