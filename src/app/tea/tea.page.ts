@@ -26,10 +26,6 @@ export class TeaPage implements OnInit {
       .pipe(map(teas => this.toMatrix(teas)));
   }
 
-  logout() {
-    this.store.dispatch(logout());
-  }
-
   showDetailsPage(id: number) {
     this.navController.navigateForward(['tabs', 'tea', 'tea-details', id]);
   }

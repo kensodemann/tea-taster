@@ -2,7 +2,6 @@ import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Tea } from '@app/models';
-import { logout } from '@app/store/actions';
 import {
   AuthState,
   initialState as initialAuthState,
@@ -101,19 +100,6 @@ describe('TeaPage', () => {
           teas[idx].description,
         );
       });
-    });
-  });
-
-  describe('logout button', () => {
-    it('dispatches the logout button', () => {
-      const button = fixture.debugElement.query(
-        By.css('[data-testid="logout-button"]'),
-      );
-      const store = TestBed.inject(Store);
-      spyOn(store, 'dispatch');
-      click(button.nativeElement);
-      expect(store.dispatch).toHaveBeenCalledTimes(1);
-      expect(store.dispatch).toHaveBeenCalledWith(logout());
     });
   });
 
