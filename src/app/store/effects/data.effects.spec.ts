@@ -1,11 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { TeaService } from '@app/core';
+import { TastingNotesService } from '@app/core/tasting-notes/tasting-notes.service';
+import { createTastingNotesServiceMock } from '@app/core/tasting-notes/tasting-notes.service.mock';
 import { createTeaServiceMock } from '@app/core/testing';
-import { Session, Tea } from '@app/models';
+import { Session, TastingNote, Tea } from '@app/models';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Observable, of, throwError } from 'rxjs';
 import {
   loginSuccess,
+  noteDeleted,
+  noteSaved,
+  notesPageLoaded,
   sessionRestored,
   teaDetailsChangeRating,
 } from '../actions';
@@ -46,11 +51,43 @@ describe('DataEffects', () => {
     },
   ];
 
+  const notes: Array<TastingNote> = [
+    {
+      id: 42,
+      brand: 'Lipton',
+      name: 'Green Tea',
+      teaCategoryId: 3,
+      rating: 3,
+      notes: 'A basic green tea, very passable but nothing special',
+    },
+    {
+      id: 314159,
+      brand: 'Lipton',
+      name: 'Yellow Label',
+      teaCategoryId: 2,
+      rating: 1,
+      notes:
+        'Very acidic, even as dark teas go, OK for iced tea, horrible for any other application',
+    },
+    {
+      id: 73,
+      brand: 'Rishi',
+      name: 'Puer Cake',
+      teaCategoryId: 6,
+      rating: 5,
+      notes: 'Smooth and peaty, the king of puer teas',
+    },
+  ];
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         DataEffects,
         provideMockActions(() => actions$),
+        {
+          provide: TastingNotesService,
+          useFactory: createTastingNotesServiceMock,
+        },
         {
           provide: TeaService,
           useFactory: createTeaServiceMock,
@@ -154,6 +191,165 @@ describe('DataEffects', () => {
           expect(newAction).toEqual({
             type: '[Data API] change rating failure',
             errorMessage: 'private storage is blowing chunks?',
+          });
+          done();
+        });
+      });
+    });
+  });
+
+  describe('notesPageLoaded$', () => {
+    beforeEach(() => {
+      const notesService = TestBed.inject(TastingNotesService);
+      (notesService.getAll as any).and.returnValue(of(notes));
+    });
+
+    it('loads the notes', done => {
+      const notesService = TestBed.inject(TastingNotesService);
+      actions$ = of(notesPageLoaded());
+      effects.notesPageLoaded$.subscribe(() => {
+        expect(notesService.getAll).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    describe('on success', () => {
+      it('dispatches notes loaded success', done => {
+        actions$ = of(notesPageLoaded());
+        effects.notesPageLoaded$.subscribe(newAction => {
+          expect(newAction).toEqual({
+            type: '[Data API] notes page loaded success',
+            notes,
+          });
+          done();
+        });
+      });
+    });
+
+    describe('on an exception', () => {
+      beforeEach(() => {
+        const notesService = TestBed.inject(TastingNotesService);
+        (notesService.getAll as any).and.returnValue(
+          throwError(new Error('the server is blowing chunks')),
+        );
+      });
+
+      it('dispatches notes loaded failure with a generic message', done => {
+        actions$ = of(notesPageLoaded());
+        effects.notesPageLoaded$.subscribe(newAction => {
+          expect(newAction).toEqual({
+            type: '[Data API] notes page loaded failure',
+            errorMessage: 'Error in data load, check server logs',
+          });
+          done();
+        });
+      });
+    });
+  });
+
+  describe('noteSaved$', () => {
+    let note: TastingNote;
+    let noteWithId: TastingNote;
+    beforeEach(() => {
+      note = {
+        brand: 'Bigalow',
+        name: 'Earl Grey',
+        teaCategoryId: 5,
+        rating: 3,
+        notes: 'Not great, but not bad either',
+      };
+      noteWithId = { ...note, id: 99385 };
+      const notesService = TestBed.inject(TastingNotesService);
+      (notesService.save as any).and.returnValue(of(noteWithId));
+    });
+
+    it('saves the notes', done => {
+      const notesService = TestBed.inject(TastingNotesService);
+      actions$ = of(noteSaved({ note }));
+      effects.noteSaved$.subscribe(() => {
+        expect(notesService.save).toHaveBeenCalledTimes(1);
+        expect(notesService.save).toHaveBeenCalledWith(note);
+        done();
+      });
+    });
+
+    describe('on success', () => {
+      it('dispatches note saved success', done => {
+        actions$ = of(noteSaved({ note }));
+        effects.noteSaved$.subscribe(newAction => {
+          expect(newAction).toEqual({
+            type: '[Data API] note saved success',
+            note: noteWithId,
+          });
+          done();
+        });
+      });
+    });
+
+    describe('on an exception', () => {
+      beforeEach(() => {
+        const notesService = TestBed.inject(TastingNotesService);
+        (notesService.save as any).and.returnValue(
+          throwError(new Error('the server is blowing chunks')),
+        );
+      });
+
+      it('dispatches note saved failure with a generic message', done => {
+        actions$ = of(noteSaved({ note }));
+        effects.noteSaved$.subscribe(newAction => {
+          expect(newAction).toEqual({
+            type: '[Data API] note saved failure',
+            errorMessage: 'Error in data load, check server logs',
+          });
+          done();
+        });
+      });
+    });
+  });
+
+  describe('noteDeleted$', () => {
+    beforeEach(() => {
+      const notesService = TestBed.inject(TastingNotesService);
+      (notesService.delete as any).and.returnValue(of(null));
+    });
+
+    it('deletes the notes', done => {
+      const notesService = TestBed.inject(TastingNotesService);
+      actions$ = of(noteDeleted({ note: notes[1] }));
+      effects.noteDeleted$.subscribe(() => {
+        expect(notesService.delete).toHaveBeenCalledTimes(1);
+        expect(notesService.delete).toHaveBeenCalledWith(notes[1].id);
+        done();
+      });
+    });
+
+    describe('on success', () => {
+      it('dispatches note deleted success', done => {
+        actions$ = of(noteDeleted({ note: notes[1] }));
+        effects.noteDeleted$.subscribe(newAction => {
+          expect(newAction).toEqual({
+            type: '[Data API] note deleted success',
+            note: notes[1],
+          });
+          done();
+        });
+      });
+    });
+
+    describe('on an exception', () => {
+      beforeEach(() => {
+        const notesService = TestBed.inject(TastingNotesService);
+        (notesService.delete as any).and.returnValue(
+          throwError(new Error('the server is blowing chunks')),
+        );
+      });
+
+      it('dispatches note deleted failure with a generic message', done => {
+        actions$ = of(noteDeleted({ note: notes[1] }));
+        effects.noteDeleted$.subscribe(newAction => {
+          expect(newAction).toEqual({
+            type: '[Data API] note deleted failure',
+            errorMessage: 'Error in data load, check server logs',
           });
           done();
         });

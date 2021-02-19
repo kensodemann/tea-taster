@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Session, Tea } from '@app/models';
+import { Session, TastingNote, Tea } from '@app/models';
 
 export const login = createAction(
   '[Login Page] login',
@@ -38,6 +38,42 @@ export const teaDetailsChangeRatingSuccess = createAction(
 );
 export const teaDetailsChangeRatingFailure = createAction(
   '[Data API] change rating failure',
+  props<{ errorMessage: string }>(),
+);
+
+export const notesPageLoaded = createAction('[Notes Page] loaded');
+export const notesPageLoadedSuccess = createAction(
+  '[Data API] notes page loaded success',
+  props<{ notes: Array<TastingNote> }>(),
+);
+export const notesPageLoadedFailure = createAction(
+  '[Data API] notes page loaded failure',
+  props<{ errorMessage: string }>(),
+);
+
+export const noteSaved = createAction(
+  '[Note Editor] note saved',
+  props<{ note: TastingNote }>(),
+);
+export const noteSavedSuccess = createAction(
+  '[Data API] note saved success',
+  props<{ note: TastingNote }>(),
+);
+export const noteSavedFailure = createAction(
+  '[Data API] note saved failure',
+  props<{ errorMessage: string }>(),
+);
+
+export const noteDeleted = createAction(
+  '[Notes Page] note deleted',
+  props<{ note: TastingNote }>(),
+);
+export const noteDeletedSuccess = createAction(
+  '[Data API] note deleted success',
+  props<{ note: TastingNote }>(),
+);
+export const noteDeletedFailure = createAction(
+  '[Data API] note deleted failure',
   props<{ errorMessage: string }>(),
 );
 
